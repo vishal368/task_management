@@ -73,4 +73,4 @@ pipeline {
 }
 
 
-##### ls -l ~/.kube/config
+// ls -l ~/.kube/config
