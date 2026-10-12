@@ -30,20 +30,16 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'docker_cred',
-                    usernameVariable: 'DOCKER_USERNAME',
-                    passwordVariable: 'DOCKER_PASSWORD'
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
                 )]) {
                     sh '''
-                        set -eu
-                        export DOCKER_CONFIG="$(mktemp -d)"
-                        trap 'docker logout >/dev/null 2>&1 || true; rm -rf "$DOCKER_CONFIG"' EXIT
+                        echo "$PASS" | docker login -u "$USER" --password-stdin
 
-                        printf '%s' "$DOCKER_PASSWORD" | docker login \
-                            --username "$DOCKER_USERNAME" --password-stdin
+                        docker push $BACKEND:$TAG
+                        docker push $FRONTEND:$TAG
 
-                        docker push "$BACKEND:$TAG"
-                        docker push "$FRONTEND:$TAG"
-
+                        docker logout
                     '''
                 }
             }
@@ -56,17 +52,9 @@ pipeline {
                     variable: 'KUBECONFIG'
                 )]) {
                     sh '''
-                        set -eu
-                        kubectl -n task-management set image \
-                            deployment/backend backend="$BACKEND:$TAG"
+                        kubectl -n task-management set image deployment/backend backend=$BACKEND:$TAG
 
-                        kubectl -n task-management set image \
-                            deployment/frontend frontend="$FRONTEND:$TAG"
-
-                        kubectl -n task-management rollout status \
-                            deployment/backend --timeout=180s
-                        kubectl -n task-management rollout status \
-                            deployment/frontend --timeout=180s
+                        kubectl -n task-management set image deployment/frontend frontend=$FRONTEND:$TAG
                     '''
                 }
             }
@@ -75,7 +63,7 @@ pipeline {
 
     post {
         success {
-            echo 'Build and Deployment Successful!'
+            echo 'Build and Deployment Successful! That is great!'
         }
 
         failure {
@@ -83,3 +71,6 @@ pipeline {
         }
     }
 }
+
+
+##### ls -l ~/.kube/config
