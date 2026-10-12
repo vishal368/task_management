@@ -20,7 +20,7 @@ pipeline {
                     docker build -t $BACKEND:$TAG ./backend
 
                     docker build \
-                    --build-arg VITE_API_URL=http://34.36.147.122 \
+                    --build-arg VITE_API_URL=http://34.120.58.178 \
                     -t $FRONTEND:$TAG ./frontend
                 '''
             }

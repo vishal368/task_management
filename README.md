@@ -1509,15 +1509,33 @@ volumes:
   postgres_data:
 ```
 
-The browser reaches the Compose API at `localhost:5001`, while the backend listens on container port `5000` and reaches PostgreSQL at the Compose service name `postgres`. `VITE_API_URL` is baked into the frontend during its image build. These credentials are for local development only.
+>> Run:    gcloud container clusters get-credentials <cluster-name> --zone <zone> --project <project-id>
 
-Start the full stack from the project root:
+>> Run: 
+Step 1: Generate it into a separate file
 
-```bash
-docker compose up --build
-```
+KUBECONFIG=$HOME/gke-config gcloud container clusters get-credentials my-gke-cluster --zone asia-south1-a --project ecstatic-gantry-232512
 
-Open `http://localhost:5173`; the Compose API is at `http://localhost:5001`. Stop the containers with `docker compose down`. The named database volume remains unless explicitly removed.
+Step 2: Check it has only one cluster
+
+KUBECONFIG=$HOME/gke-config kubectl config get-contexts
+
+Step 3: Test it
+
+KUBECONFIG=$HOME/gke-config kubectl get nodes
+
+Step 4: Upload to Jenkins
+Manage Jenkins → Credentials → Global → Add Credentials
+
+Kind: Secret file
+File: ~/gke-config (from your laptop)
+ID: gke-kubeconfig
+
+---
+cp ~/gke-config /tmp/gke-config
+chmod 644 /tmp/gke-config
+sudo -u jenkins -H env KUBECONFIG=/tmp/gke-config kubectl get nodes
+rm /tmp/gke-config
 
 ---
 
