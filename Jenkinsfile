@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        BACKEND = 'devoopsguru/task-management-backend'
-        FRONTEND = 'devoopsguru/task-management-frontend'
+        BACKEND = 'devopsguru/task-management-backend'
+        FRONTEND = 'devopsguru/task-management-frontend'
         TAG = "${BUILD_NUMBER}"
     }
 
